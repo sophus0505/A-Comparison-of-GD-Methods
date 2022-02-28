@@ -4,7 +4,9 @@ message: "If you use this software, please cite it as below."
 authors:
   - family-names: B. Gullbekk
     given-names: Sophus
-title: "A Comparison of GD Methods"
+title: "A Comparison of Gradient Descent Methods"
 version: 1.0.0
 doi: 10.5281/zenodo.6300833
 date-released: 27-02-2022
+url: "https://github.com/sophus0505/A-Comparison-of-GD-Methods"
+
