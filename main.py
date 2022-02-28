@@ -45,6 +45,7 @@ plt.rcParams.update(
 
 def set_size(width_pt, fraction=1, subplots=(1, 1)):
     """Set figure dimensions to sit nicely in our document.
+    This function is taken from https://jwalton.info/Matplotlib-latex-PGF/.
 
     Parameters
     ----------
@@ -72,7 +73,7 @@ def set_size(width_pt, fraction=1, subplots=(1, 1)):
     # Figure height in inches
     fig_height_in = fig_width_in * golden_ratio * (subplots[0] / subplots[1])
 
-    return (fig_width_in, fig_height_in)
+    return (fig_width_in, fig_height_in+0.5)
 
 
 plt.rcParams["figure.figsize"] = set_size(345)
@@ -93,7 +94,7 @@ def plot_contour(F, dF, x0, y0, alpha, beta, delta0, stepsize, epsilon):
         stepsize (float): Lr for SGD
         epsilon (float): Minimum size of sigma, and uncertainty
     """
-    palette = sns.color_palette("inferno")
+    palette = sns.color_palette("YlOrRd")
 
     x = np.linspace(-2, 2)
     y = np.linspace(-1, 3)
@@ -107,29 +108,31 @@ def plot_contour(F, dF, x0, y0, alpha, beta, delta0, stepsize, epsilon):
     plt.ylabel('$y$')
 
     # Generate data (perform methods)
-    vals, i = gradient_descent(F, dF, x0, y0, stepsize, epsilon)
-    vals2, i2 = backtracking_gradient_descent(
+    vals, _ = gradient_descent(F, dF, x0, y0, stepsize, epsilon)
+    vals2, __ = backtracking_gradient_descent(
         F, dF, x0, y0, alpha, beta, delta0, epsilon)
-    vals3, i3 = two_way_backtracking_gradient_descent(
+    vals3, ___ = two_way_backtracking_gradient_descent(
         F, dF, x0, y0, alpha, beta, delta0, epsilon)
 
-    # print(i, i2, i3)
+    print(_, __, ___)
     if vals2 == "Divergent":
         print("The sequence diverges")
         return
 
-    plt.scatter(*zip(*vals), label="GD", s=10, color=palette[2])
-    plt.scatter(*zip(*vals2), label="BGD", s=10, color=palette[5])
-    plt.scatter(*zip(*vals3), label="2W-BGD", s=10)
+    plt.scatter(*zip(*vals), label="GD", s=10, c='yellow')
+    plt.scatter(*zip(*vals2), label="BGD", s=10, c='darkorange')
+    plt.scatter(*zip(*vals3), label="2W-BGD", s=10, c='r')
+
+    plt.plot(*zip(*vals), alpha=0.5, c='yellow')
+    plt.plot(*zip(*vals2), alpha=0.5, c='darkorange')
+    plt.plot(*zip(*vals3), alpha=0.5, c='r')
 
     # Plot the global minimum
-    plt.scatter(1, 1, marker="+", color="w", label="Global minimum")
 
-    plt.plot(*zip(*vals), alpha=0.5, color=palette[2])
-    plt.plot(*zip(*vals2), alpha=0.5, color=palette[5])
-    plt.plot(*zip(*vals3), alpha=0.5)
+    plt.scatter(1, 1, marker="+", c="w", s=200, label="Global minimum")
 
     plt.legend()
+    plt.tight_layout()
     plt.savefig("../figures/contour_plot3.pgf")
     plt.show()
 
@@ -137,7 +140,7 @@ def plot_contour(F, dF, x0, y0, alpha, beta, delta0, stepsize, epsilon):
 def calc_iterations(F, dF, x0, y0, alpha, beta, epsilon, max_iterations):
     """Calculates the number of iterations used to converge to a local minimum of F by
     SGD, BGD and two-way BGD for initial learning rates [100, 10, 1, 0.1, 0.01, 0.001, 0.0001].
-    The results are printed out in the terminal. 
+    The results are printed out in the terminal.
 
     Args:
         F (function): A function F: R2 -> R
@@ -149,8 +152,6 @@ def calc_iterations(F, dF, x0, y0, alpha, beta, epsilon, max_iterations):
         epsilon (float): Margin of error
         max_iterations (int): The maximum amount of iterations allowed
     """
-
-    np.seterr(all='raise')
 
     for stepsize in [100, 10, 1, 0.1, 0.01, 0.001, 0.0001]:
 
@@ -196,29 +197,28 @@ def calc_iterations(F, dF, x0, y0, alpha, beta, epsilon, max_iterations):
         )
         end3 = time.time()
         time3 = end3 - start3
-
+        
+        # Output the results to the terminal
+        print("################################")
         print(f"{stepsize = }")
         print(f"{gd          = }, {time1    = }")
         print(f"{bgd         = }, {time2    = }")
         print(f"{twobgd      = }, {time3    = }")
-        print("######################")
+        print("################################")
 
 
 if __name__ == "__main__":
 
-    # Establish a common style for the plots
-    palette = sns.color_palette("inferno")
-    sns.set_palette("inferno")
-    # plt.style.use("ggplot")
-
+    # Starting point
     x0, y0 = -1, 2
 
-    # Nice parameters:
+    # Generate the results and figures used in the paper:
+    
     plot_contour(Rosenbrock1, Grad_Rosenbrock1, x0, y0,
-                 alpha=0.5, beta=0.6, delta0=1, stepsize=0.1, epsilon=1e-7)
+                 alpha=0.5, beta=0.6, delta0=0.9, stepsize=0.1, epsilon=1e-7)
 
-    # calc_iterations(
-    #     Rosenbrock, Grad_Rosenbrock, x0, y0, alpha=0.5, beta=0.5, epsilon=1e-7, max_iterations=500_000
-    # )
+    calc_iterations(
+        Rosenbrock, Grad_Rosenbrock, x0, y0, alpha=0.5, beta=0.5, epsilon=1e-7, max_iterations=500_000
+    )
 
     plt.show()
