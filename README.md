@@ -1,4 +1,4 @@
-# An Implementation of Three Different Gradient Descent Methods 
+# An Implementation of Three Different Gradient Descent Methods With Backtracking Line Search Using Armijo's Condition
 ## Code accompanying the first obligatory paper in MAT2000
 
 ### The methods implemented are taken from the 2019 paper *Backtracking gradient descent method for general C1 functions, with applications to Deep Learning* by Truong, T. T. and Nguyen, T. H. arXiv: [1808.05160](https://arxiv.org/abs/1808.05160)
